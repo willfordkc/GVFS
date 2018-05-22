@@ -73,21 +73,15 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
-        public void MountCleansStaleIndexLock()
+        public void MountChangesMountId()
         {
-            this.MountCleansIndexLock(lockFileContents: "GVFS");
-        }
-
-        [TestCase]
-        public void MountCleansEmptyIndexLock()
-        {
-            this.MountCleansIndexLock(lockFileContents: string.Empty);
-        }
-
-        [TestCase]
-        public void MountCleansUnknownIndexLock()
-        {
-            this.MountCleansIndexLock(lockFileContents: "Bogus lock file contents");
+            string mountId = GitProcess.Invoke(this.Enlistment.RepoRoot, "config gvfs.mount-id")
+                .Trim('\n');
+            this.Enlistment.UnmountGVFS();
+            this.Enlistment.MountGVFS();
+            GitProcess.Invoke(this.Enlistment.RepoRoot, "config gvfs.mount-id")
+                .Trim('\n')
+                .ShouldNotEqual(mountId, "gvfs.mount-id should change on every mount");
         }
 
         [TestCase]
@@ -264,9 +258,9 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
             this.Enlistment.MountGVFS();
         }
 
-        // Ported from GVFlt's BugRegressionTest
+        // Ported from ProjFS's BugRegressionTest
         [TestCase]
-        public void GVFlt_CMDHangNoneActiveInstance()
+        public void ProjFS_CMDHangNoneActiveInstance()
         {
             this.Enlistment.UnmountGVFS();
 
@@ -283,27 +277,8 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
                 handle.IsInvalid.ShouldEqual(true);
                 lastError.ShouldNotEqual(0); // 0 == ERROR_SUCCESS
             }
-        }
-
-        private void MountCleansIndexLock(string lockFileContents)
-        {
-            this.Enlistment.UnmountGVFS();
-
-            string indexLockVirtualPath = this.Enlistment.GetVirtualPathTo(IndexLockPath);
-            indexLockVirtualPath.ShouldNotExistOnDisk(this.fileSystem);
-
-            if (string.IsNullOrEmpty(lockFileContents))
-            {
-                this.fileSystem.CreateEmptyFile(indexLockVirtualPath);
-            }
-            else
-            {
-                this.fileSystem.AppendAllText(indexLockVirtualPath, lockFileContents);
-            }
 
             this.Enlistment.MountGVFS();
-            this.Enlistment.WaitForBackgroundOperations().ShouldEqual(true, "Background operations failed to complete.");
-            indexLockVirtualPath.ShouldNotExistOnDisk(this.fileSystem);
         }
 
         private void MountShouldFail(int expectedExitCode, string expectedErrorMessage, string mountWorkingDirectory = null)

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\GVFS\GVFS.Build\GVFS.props" />
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Version>$(GVFSVersion)</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Interop\" />
+  </ItemGroup>
+</Project>

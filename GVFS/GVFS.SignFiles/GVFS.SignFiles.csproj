@@ -9,11 +9,13 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GVFS.SignFiles</RootNamespace>
     <AssemblyName>GVFS.SignFiles</AssemblyName>
-    <OutDir>$(BuildOutputDir)</OutDir> <!-- MicroBuild hack: override OutDir to make all files we want to sign under it. -->
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <OutDir>$(BuildOutputDir)</OutDir>
+    <!-- MicroBuild hack: override OutDir to make all files we want to sign under it. -->
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -42,7 +44,10 @@
       $(BuildOutputDir)\GVFS.Mount\bin\$(Platform)\$(Configuration)\GVFS.Mount.exe;
       $(BuildOutputDir)\GVFS.ReadObjectHook\bin\$(Platform)\$(Configuration)\GVFS.ReadObjectHook.exe;
       $(BuildOutputDir)\GVFS.Service\bin\$(Platform)\$(Configuration)\GVFS.Service.exe;
-      $(BuildOutputDir)\GVFS.Service.UI\bin\$(Platform)\$(Configuration)\GVFS.Service.UI.exe;">
+      $(BuildOutputDir)\GVFS.Service.UI\bin\$(Platform)\$(Configuration)\GVFS.Service.UI.exe;
+      $(BuildOutputDir)\GVFS.VirtualFileSystemHook\bin\$(Platform)\$(Configuration)\GVFS.VirtualFileSystemHook.exe;
+      $(BuildOutputDir)\GVFS.Virtualization\bin\$(Platform)\$(Configuration)\GVFS.Virtualization.dll;
+      $(BuildOutputDir)\GVFS.Windows\bin\$(Platform)\$(Configuration)\GVFS.Windows.dll;">
       <Authenticode>Microsoft</Authenticode>
       <InProject>false</InProject>
     </FilesToSign>

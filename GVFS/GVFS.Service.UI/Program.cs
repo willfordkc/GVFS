@@ -2,7 +2,6 @@
 using GVFS.Common.NamedPipes;
 using GVFS.Common.Tracing;
 using GVFS.Service.UI.Data;
-using Microsoft.Diagnostics.Tracing;
 using System;
 using System.IO;
 using System.Linq;
@@ -27,7 +26,7 @@ namespace GVFS.Service.UI
         
         public static void Main(string[] args)
         {
-            using (JsonEtwTracer tracer = new JsonEtwTracer("Microsoft.Git.GVFS.Service.UI", "Service.UI"))
+            using (JsonTracer tracer = new JsonTracer("Microsoft.Git.GVFS.Service.UI", "Service.UI"))
             {
                 string logLocation = Path.Combine(
                     Environment.GetEnvironmentVariable("LocalAppData"),

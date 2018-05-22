@@ -33,12 +33,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="GenerateApplicationManifests.cs" />
+    <Compile Include="GenerateGVFSInstallersNuspec.cs" />
+    <Compile Include="GenerateG4WConstants.cs" />
+    <Compile Include="GenerateG4WNugetReference.cs" />
+    <Compile Include="GenerateInstallScripts.cs" />
     <Compile Include="GenerateVersionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GVFS.props">
       <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
     <None Include="ProjFS.props">
       <SubType>Designer</SubType>
     </None>
@@ -46,6 +51,46 @@
   <Target Name="GetTargetFrameworkProperties" />
   <Target Name="GetNativeManifest" />
   <Target Name="GetCopyToOutputDirectoryItems" />
+  <UsingTask TaskName="GenerateG4WNugetReference" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+    <ParameterGroup>
+      <G4WPackageVersion ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Class" Source="GenerateG4WNugetReference.cs" />
+    </Task>
+  </UsingTask>
+  <UsingTask TaskName="GenerateG4WConstants" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+    <ParameterGroup>
+      <G4WPackageVersion ParameterType="System.String" Required="true" />
+      <PackagesPath ParameterType="System.String" Required="true" />
+      <BuildOutputPath ParameterType="System.String" Required="true" />
+      <LatestInstaller ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Class" Source="GenerateG4WConstants.cs" />
+    </Task>
+  </UsingTask>
+  <UsingTask TaskName="GenerateInstallScripts" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+    <ParameterGroup>
+      <G4WInstallerPath ParameterType="System.String" Required="true" />
+      <GVFSSetupPath ParameterType="System.String" Required="true" />
+      <BuildOutputPath ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Class" Source="GenerateInstallScripts.cs" />
+    </Task>
+  </UsingTask>
+  <UsingTask TaskName="GenerateGVFSInstallersNuspec" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+    <ParameterGroup>
+      <GVFSSetupPath ParameterType="System.String" Required="true" />
+      <G4WPackageVersion ParameterType="System.String" Required="true" />
+      <PackagesPath ParameterType="System.String" Required="true" />
+      <BuildOutputPath ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Class" Source="GenerateGVFSInstallersNuspec.cs" />
+    </Task>
+  </UsingTask>
   <UsingTask TaskName="GenerateVersionInfo" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
     <ParameterGroup>
       <Version ParameterType="System.String" Required="true" />
@@ -71,10 +116,23 @@
     <CallTarget Targets="GenerateAll" />
   </Target>
   <Target Name="Clean">
+    <Delete Files="packages.config" />
     <RemoveDir Directories="$(BuildOutputDir)\$(MSBuildProjectName)" />
     <Delete Files="$(BuildOutputDir)\CommonAssemblyVersion.cs;$(BuildOutputDir)\CommonVersionHeader.h" />
   </Target>
+  <Target Name="GVFSPreBuild">
+    <GenerateG4WNugetReference G4WPackageVersion="$(G4WPackageVersion)" />
+  </Target>
+  <PropertyGroup>
+    <GVFSSetupPath>$(BuildOutputDir)\GVFS.Installer\bin\x64\$(Configuration)\SetupGVFS.$(GVFSVersion).exe</GVFSSetupPath>
+  </PropertyGroup>
   <Target Name="GenerateAll">
+    <CallTarget Targets="GVFSPreBuild" />
+    <GenerateG4WConstants G4WPackageVersion="$(G4WPackageVersion)" PackagesPath="$(PackagesDir)" BuildOutputPath="$(BuildOutputDir)">
+      <Output PropertyName="G4WInstaller" TaskParameter="LatestInstaller" />
+    </GenerateG4WConstants>
+    <GenerateInstallScripts G4WInstallerPath="$(G4WInstaller)" GVFSSetupPath="$(GVFSSetupPath)" BuildOutputPath="$(BuildOutputDir)" />
+    <GenerateGVFSInstallersNuspec GVFSSetupPath="$(GVFSSetupPath)" G4WPackageVersion="$(G4WPackageVersion)" PackagesPath="$(PackagesDir)" BuildOutputPath="$(BuildOutputDir)" />
     <GenerateVersionInfo Version="$(GVFSVersion)" BuildOutputPath="$(BuildOutputDir)" />
     <GenerateApplicationManifests Version="$(GVFSVersion)" BuildOutputPath="$(BuildOutputDir)" />
   </Target>

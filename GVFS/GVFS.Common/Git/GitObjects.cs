@@ -2,7 +2,6 @@
 using GVFS.Common.Http;
 using GVFS.Common.NetworkStreams;
 using GVFS.Common.Tracing;
-using Microsoft.Diagnostics.Tracing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

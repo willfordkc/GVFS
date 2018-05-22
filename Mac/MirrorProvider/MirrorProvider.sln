@@ -1,0 +1,23 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MirrorProvider", "MirrorProvider\MirrorProvider.csproj", "{FFEB3FE3-F8BC-4BD2-9987-AA8C8C42C6B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrjFSLib.Managed", "..\PrjFSLib.Managed\PrjFSLib.Managed.csproj", "{064685CA-00F6-41AB-A2AB-3350AEC4419C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FFEB3FE3-F8BC-4BD2-9987-AA8C8C42C6B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFEB3FE3-F8BC-4BD2-9987-AA8C8C42C6B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFEB3FE3-F8BC-4BD2-9987-AA8C8C42C6B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFEB3FE3-F8BC-4BD2-9987-AA8C8C42C6B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{064685CA-00F6-41AB-A2AB-3350AEC4419C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{064685CA-00F6-41AB-A2AB-3350AEC4419C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{064685CA-00F6-41AB-A2AB-3350AEC4419C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{064685CA-00F6-41AB-A2AB-3350AEC4419C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

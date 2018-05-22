@@ -1,4 +1,6 @@
 ﻿using CommandLine;
+using GVFS.Common;
+using GVFS.Windows;
 
 namespace FastFetch
 {
@@ -6,6 +8,7 @@ namespace FastFetch
     {
         public static void Main(string[] args)
         {
+            GVFSPlatform.Register(new WindowsPlatform());
             Parser.Default.ParseArguments<FastFetchVerb>(args)
                 .WithParsed(fastFetch => fastFetch.Execute());
         }

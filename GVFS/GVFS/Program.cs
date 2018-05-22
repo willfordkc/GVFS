@@ -1,6 +1,7 @@
 ﻿using CommandLine;
-using GVFS.CommandLine;
+using GVFS.CLI.CommandLine;
 using GVFS.Common;
+using GVFS.Windows;
 using System;
 using System.Linq;
 
@@ -14,6 +15,8 @@ namespace GVFS
     {
         public static void Main(string[] args)
         {
+            GVFSPlatform.Register(new WindowsPlatform());
+
             Type[] verbTypes = new Type[]
             {
                 typeof(CacheServerVerb),
@@ -69,9 +72,9 @@ namespace GVFS
                         {
                             // For all other verbs, they don't care if the enlistment root is explicitly
                             // specified or implied to be the current directory
-                            if (string.IsNullOrEmpty(verb.EnlistmentRootPath))
+                            if (string.IsNullOrEmpty(verb.EnlistmentRootPathParameter))
                             {
-                                verb.EnlistmentRootPath = Environment.CurrentDirectory;
+                                verb.EnlistmentRootPathParameter = Environment.CurrentDirectory;
                             }
 
                             verb.Execute();

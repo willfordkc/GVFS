@@ -2,6 +2,7 @@
 using GVFS.FunctionalTests.Should;
 using GVFS.FunctionalTests.Tools;
 using GVFS.Tests.Should;
+using Microsoft.Win32;
 using NUnit.Framework;
 using System;
 using System.Runtime.InteropServices;
@@ -16,6 +17,8 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
     public class ServiceTests : TestsWithEnlistmentPerFixture
     {
         private const string NativeLibPath = @"C:\Program Files\GVFS\ProjectedFSLib.dll";
+        private const string PrjFltAutoLoggerKey = "SYSTEM\\CurrentControlSet\\Control\\WMI\\Autologger\\Microsoft-Windows-ProjFS-Filter-Log";
+        private const string PrjFltAutoLoggerStartValue = "Start";
 
         private FileSystemRunner fileSystem;
 
@@ -25,59 +28,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
         }
 
         [TestCase]
-        public void MountAsksServiceToCopyNonInboxNativeDll()
-        {
-            if (IsProjFSInbox())
-            {
-                Assert.Ignore("Skipping test, ProjFS is inbox");
-            }
-
-            if (!GVFSTestConfig.TestGVFSOnPath)
-            {
-                Assert.Ignore("Skipping test, test only enabled when --test-gvfs-on-path is set");
-            }
-
-            NativeLibPath.ShouldBeAFile(this.fileSystem);
-            this.Enlistment.UnmountGVFS();
-            this.fileSystem.DeleteFile(NativeLibPath);
-            NativeLibPath.ShouldNotExistOnDisk(this.fileSystem);
-            this.Enlistment.MountGVFS();
-            NativeLibPath.ShouldBeAFile(this.fileSystem);
-        }
-
-        [TestCase]
-        public void ServiceCopiesNonInboxNativeDll()
-        {
-            if (IsProjFSInbox())
-            {
-                Assert.Ignore("Skipping test, ProjFS is inbox");
-            }
-
-            if (!GVFSTestConfig.TestGVFSOnPath)
-            {
-                Assert.Ignore("Skipping test, test only enabled when --test-gvfs-on-path is set");
-            }
-
-            NativeLibPath.ShouldBeAFile(this.fileSystem);
-            this.Enlistment.UnmountGVFS();
-            this.fileSystem.DeleteFile(NativeLibPath);
-            NativeLibPath.ShouldNotExistOnDisk(this.fileSystem);
-            GVFSServiceProcess.StopService();
-            GVFSServiceProcess.StartService();
-
-            int count = 0;
-            while (!this.fileSystem.FileExists(NativeLibPath) && count < 10)
-            {
-                Thread.Sleep(1000);
-                ++count;
-            }
-
-            NativeLibPath.ShouldBeAFile(this.fileSystem);
-            this.Enlistment.MountGVFS();
-        }
-
-        [TestCase]
-        public void MountAsksServiceToStartPrjFltService()
+        public void MountAsksServiceToEnsurePrjFltServiceIsHealthy()
         {
             if (!GVFSTestConfig.TestGVFSOnPath)
             {
@@ -86,8 +37,16 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerFixture
 
             this.Enlistment.UnmountGVFS();
             StopPrjFlt();
+
+            // Disable the ProjFS autologger
+            RegistryHelper.GetValueFromRegistry(RegistryHive.LocalMachine, PrjFltAutoLoggerKey, PrjFltAutoLoggerStartValue).ShouldNotBeNull();
+            RegistryHelper.TrySetDWordInRegistry(RegistryHive.LocalMachine, PrjFltAutoLoggerKey, PrjFltAutoLoggerStartValue, 0).ShouldBeTrue();
+
             this.Enlistment.MountGVFS();
             IsPrjFltRunning().ShouldBeTrue();
+
+            // The service should have re-enabled the autologger
+            Convert.ToInt32(RegistryHelper.GetValueFromRegistry(RegistryHive.LocalMachine, PrjFltAutoLoggerKey, PrjFltAutoLoggerStartValue)).ShouldEqual(1);
         }
 
         [TestCase]

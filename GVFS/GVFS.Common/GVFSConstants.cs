@@ -1,5 +1,4 @@
-﻿using GVFS.Common.Git;
-using System.IO;
+﻿using System.IO;
 
 namespace GVFS.Common
 {
@@ -24,17 +23,17 @@ namespace GVFS.Common
         public const string GVFSExecutableName = "GVFS.exe";
         public const string GVFSHooksExecutableName = "GVFS.Hooks.exe";
         public const string GVFSReadObjectHookExecutableName = "GVFS.ReadObjectHook.exe";
+        public const string GVFSVirtualFileSystemHookExecutableName = "GVFS.VirtualFileSystemHook.exe";
         public const string MountExecutableName = "GVFS.Mount.exe";
         public const string ExecutableExtension = ".exe";
         public const string GitIsNotInstalledError = "Could not find git.exe.  Ensure that Git is installed.";
-
-        public static readonly GitVersion MinimumGitVersion = new GitVersion(2, 17, 0, "gvfs", 1, 0);
 
         public static class GitConfig
         {
             public const string GVFSPrefix = "gvfs.";
             public const string MaxRetriesConfig = GVFSPrefix + "max-retries";
             public const string TimeoutSecondsConfig = GVFSPrefix + "timeout-seconds";
+            public const string MountId = GVFSPrefix + "mount-id";
             public const string EnlistmentId = GVFSPrefix + "enlistment-id";
             public const string CacheServer = GVFSPrefix + "cache-server";
             public const string DeprecatedCacheEndpointSuffix = ".cache-server-url";
@@ -97,8 +96,9 @@ namespace GVFS.Common
             {
                 public const string Name = "databases";
 
-                public static readonly string BackgroundGitOperations = Path.Combine(Name, "BackgroundGitOperations.dat");
+                public static readonly string BackgroundFileSystemTasks = Path.Combine(Name, "BackgroundGitOperations.dat");
                 public static readonly string PlaceholderList = Path.Combine(Name, "PlaceholderList.dat");
+                public static readonly string ModifiedPaths = Path.Combine(Name, "ModifiedPaths.dat");
                 public static readonly string RepoMetadata = Path.Combine(Name, "RepoMetadata.dat");
             }
         }
@@ -136,11 +136,13 @@ namespace GVFS.Common
                 public const string LoaderExecutable = "GitHooksLoader.exe";
                 public const string PreCommandHookName = "pre-command";
                 public const string PostCommandHookName = "post-command";
-                public static readonly string ReadObjectName = "read-object";
+                public const string ReadObjectName = "read-object";
+                public const string VirtualFileSystemName = "virtual-filesystem";
                 public static readonly string Root = Path.Combine(DotGit.Root, "hooks");
                 public static readonly string PreCommandPath = Path.Combine(Hooks.Root, PreCommandHookName);
                 public static readonly string PostCommandPath = Path.Combine(Hooks.Root, PostCommandHookName);
                 public static readonly string ReadObjectPath = Path.Combine(Hooks.Root, ReadObjectName);
+                public static readonly string VirtualFileSystemPath = Path.Combine(Hooks.Root, VirtualFileSystemName);
             }
 
             public static class Info

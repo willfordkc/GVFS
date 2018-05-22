@@ -77,24 +77,8 @@ namespace GVFS.Common.NamedPipes
                     throw new InvalidOperationException("There is already a pipe listening for a connection");
                 }
 
-                PipeSecurity security = new PipeSecurity();
-                security.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null), PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
-                security.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.CreatorOwnerSid, null), PipeAccessRights.FullControl, AccessControlType.Allow));
-                security.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null), PipeAccessRights.FullControl, AccessControlType.Allow));
-
-                NamedPipeServerStream pipe = new NamedPipeServerStream(
-                    this.pipeName,
-                    PipeDirection.InOut,
-                    NamedPipeServerStream.MaxAllowedServerInstances,
-                    PipeTransmissionMode.Byte,
-                    PipeOptions.WriteThrough | PipeOptions.Asynchronous,
-                    0, // default inBufferSize
-                    0, // default outBufferSize
-                    security,
-                    HandleInheritability.None);
-
-                this.listeningPipe = pipe;
-                pipe.BeginWaitForConnection(this.OnNewConnection, pipe);
+                this.listeningPipe = GVFSPlatform.Instance.CreatePipeByName(this.pipeName);
+                this.listeningPipe.BeginWaitForConnection(this.OnNewConnection, this.listeningPipe);
             }
             catch (Exception e)
             {
@@ -122,7 +106,7 @@ namespace GVFS.Common.NamedPipes
                     metadata.Add("Area", "NamedPipeServer");
                     metadata.Add("Exception", e.ToString());
                     metadata.Add(TracingConstants.MessageKey.WarningMessage, "OnNewConnection: Connection broken");
-                    this.tracer.RelatedEvent(Microsoft.Diagnostics.Tracing.EventLevel.Warning, "OnNewConnectionn_EndWaitForConnection_IOException", metadata);
+                    this.tracer.RelatedEvent(EventLevel.Warning, "OnNewConnectionn_EndWaitForConnection_IOException", metadata);
                 }
                 catch (ObjectDisposedException)
                 {

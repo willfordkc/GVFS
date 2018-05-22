@@ -12,6 +12,7 @@
 #define ServiceUIDir BuildOutputDir + "\GVFS.Service.UI\bin\" + PlatformAndConfiguration
 #define GVFSMountDir BuildOutputDir + "\GVFS.Mount\bin\" + PlatformAndConfiguration
 #define ReadObjectDir BuildOutputDir + "\GVFS.ReadObjectHook\bin\" + PlatformAndConfiguration
+#define VirtualFileSystemDir BuildOutputDir + "\GVFS.VirtualFileSystemHook\bin\" + PlatformAndConfiguration
 
 #define MyAppName "GVFS"
 #define MyAppInstallerVersion GetFileVersion(GVFSDir + "\GVFS.exe")
@@ -86,18 +87,25 @@ DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSCommonDir}\git2.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSMountDir}\GVFS.Mount.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSMountDir}\GVFS.Mount.exe"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSMountDir}\GVFS.Mount.exe.config"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSMountDir}\Microsoft.Diagnostics.Tracing.EventSource.dll"
 
 ; GVFS.ReadObjectHook files
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ReadObjectDir}\GVFS.ReadObjectHook.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ReadObjectDir}\GVFS.ReadObjectHook.exe"
 
-; GVFS and FastFetch PDB's
+; GVFS.VirtualFileSystemHook files
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#VirtualFileSystemDir}\GVFS.VirtualFileSystemHook.pdb"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#VirtualFileSystemDir}\GVFS.VirtualFileSystemHook.exe"
+
+; GVFS PDB's
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\Esent.Collections.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\Esent.Interop.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\Esent.Isam.pdb"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\FastFetch.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.Common.pdb"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.CLI.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.GVFlt.pdb"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.Virtualization.pdb"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.Windows.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.pdb"
 
 ; GVFS.Service.UI Files
@@ -105,10 +113,6 @@ DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\GVFS.Service.UI.
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\GVFS.Service.UI.exe.config" 
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\GVFS.Service.UI.pdb"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#ServiceUIDir}\GitVirtualFileSystem.ico"
-
-; FastFetch Files
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\FastFetch.exe"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\FastFetch.exe.config"
 
 ; GVFS Files
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\CommandLine.dll"
@@ -121,9 +125,11 @@ DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\SQLitePCLRaw.batterie
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\SQLitePCLRaw.core.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\SQLitePCLRaw.provider.e_sqlite3.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\x64\e_sqlite3.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.CLI.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.Common.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.GVFlt.dll"
-DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\Microsoft.Diagnostics.Tracing.EventSource.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.Virtualization.dll"
+DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.Windows.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\Newtonsoft.Json.dll"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GVFS.exe.config"
 DestDir: "{app}"; Flags: ignoreversion; Source:"{#GVFSDir}\GitVirtualFileSystem.ico"  
@@ -182,21 +188,6 @@ var
 begin
   GetWindowsVersionEx(Version);
   Result := (Version.Major = 10) and (Version.Minor = 0) and (Version.Build < 15063);
-end;
-
-function DoesWindowsVersionNotHavePrjFltInbox(): Boolean;
-var
-  Version: TWindowsVersion;
-begin
-  GetWindowsVersionEx(Version);
-
-  // 17121 -> Min RS4 version with inbox PrjFlt
-  // 17600 -> First RS5 version
-  // 17626 -> Min RS5 version with inbox PrjFlt
-
-  Log(Format('Version.Build is [%d]', [Version.Build]));
-
-  Result := (Version.Major = 10) and (Version.Minor = 0) and ((Version.Build < 17121) or ((Version.Build >= 17600) and (Version.Build < 17626)));
 end;
 
 procedure RemovePath(Path: string);
@@ -416,41 +407,34 @@ begin
   if FileExists(ExpandConstant('{app}\Filter\PrjFlt.inf')) and FileExists(ExpandConstant('{sys}\drivers\prjflt.sys')) then
     begin
       UninstallSuccessful := False;
-      
-      if DoesWindowsVersionNotHavePrjFltInbox() then
+                 
+      if Exec('powershell.exe', '-NoProfile "$var=(Get-WindowsOptionalFeature -Online -FeatureName Client-ProjFS);  if($var -eq $null){exit 2}else{if($var.State -eq ''Enabled''){exit 3}else{exit 4}}"', '', SW_HIDE, ewWaitUntilTerminated, ProjFSFeatureEnabledResultCode) then
         begin
-          if UninstallPrjFlt() then
-          begin
-            UninstallSuccessful := True;
-          end;
-        end
-      else
-        begin            
-          if Exec('powershell.exe', '-NoProfile "$var=(Get-WindowsOptionalFeature -Online -FeatureName Client-ProjFS);  if($var -eq $null){exit 2}else{if($var.State -eq ''Enabled''){exit 3}else{exit 4}}"', '', SW_HIDE, ewWaitUntilTerminated, ProjFSFeatureEnabledResultCode) then
+          if ProjFSFeatureEnabledResultCode = 2 then
             begin
-              if ProjFSFeatureEnabledResultCode = 2 then
+              // Client-ProjFS is not an optional feature
+              Log('UninstallNonInboxPrjFlt: Could not locate Windows Projected File System optional feature');
+              if UninstallPrjFlt() then
                 begin
-                  // Client-ProjFS is not an optional feature
-                  Log('UninstallNonInboxPrjFlt: Fatal: Could not locate Windows Projected File System optional feature');
-                  RaiseException('Fatal: Could not locate Windows Projected File System optional feature.');
+                  UninstallSuccessful := True;
                 end;
-              if ProjFSFeatureEnabledResultCode = 3 then
+            end;
+          if ProjFSFeatureEnabledResultCode = 3 then
+            begin
+              // Client-ProjFS is already enabled, confirm the native ProjFS library is not on the path
+              Log('UninstallNonInboxPrjFlt: Client-ProjFS already enabled');
+              if DeleteNativeProjFSLibFromAppsFolder() then
                 begin
-                  // Client-ProjFS is already enabled, confirm the native ProjFS library is not on the path
-                  Log('UninstallNonInboxPrjFlt: Client-ProjFS already enabled');
-                  if DeleteNativeProjFSLibFromAppsFolder() then
-                    begin
-                      UninstallSuccessful := True;
-                    end;
+                  UninstallSuccessful := True;
                 end;
-              if ProjFSFeatureEnabledResultCode = 4 then
+            end;
+          if ProjFSFeatureEnabledResultCode = 4 then
+            begin
+              // Client-ProjFS is currently disabled but prjflt.sys is present and should be removed
+              Log('UninstallNonInboxPrjFlt: Client-ProjFS is disabled, uninstalling PrjFlt');
+              if UninstallPrjFlt() then
                 begin
-                  // Client-ProjFS is currently disabled but prjflt.sys is present and should be removed
-                  Log('UninstallNonInboxPrjFlt: Client-ProjFS is disabled, uninstalling PrjFlt');
-                  if UninstallPrjFlt() then
-                    begin
-                      UninstallSuccessful := True;
-                    end;
+                  UninstallSuccessful := True;
                 end;
             end;
         end;

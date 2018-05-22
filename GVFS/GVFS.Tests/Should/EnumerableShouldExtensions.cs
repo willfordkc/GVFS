@@ -20,6 +20,15 @@ namespace GVFS.Tests.Should
             return group;
         }
 
+        public static Dictionary<TKey, TValue> ShouldContain<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        {
+            TValue dictionaryValue;
+            dictionary.TryGetValue(key, out dictionaryValue).ShouldBeTrue();
+            dictionaryValue.ShouldEqual(value);
+
+            return dictionary;
+        }
+
         public static T ShouldContain<T>(this IEnumerable<T> group, Func<T, bool> predicate)
         {
             T item = group.FirstOrDefault(predicate);

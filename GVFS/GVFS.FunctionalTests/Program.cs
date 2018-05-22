@@ -1,10 +1,6 @@
-using GVFS.FunctionalTests.Tests;
-using GVFS.FunctionalTests.Tools;
 using GVFS.Tests;
-using NUnit.Framework;
 using System;
 using System.Diagnostics;
-using System.IO;
 
 namespace GVFS.FunctionalTests
 {
@@ -41,35 +37,8 @@ namespace GVFS.FunctionalTests
             GVFSTestConfig.RepoToClone =
                 runner.GetCustomArgWithParam("--repo-to-clone")
                 ?? Properties.Settings.Default.RepoToClone;
-
-            string servicePath = 
-                GVFSTestConfig.TestGVFSOnPath ? 
-                Properties.Settings.Default.PathToGVFSService : 
-                Path.Combine(TestContext.CurrentContext.TestDirectory, Properties.Settings.Default.PathToGVFSService);
-
-            GVFSServiceProcess.InstallService(servicePath);
-            try
-            {
-                Environment.ExitCode = runner.RunTests();
-            }
-            finally
-            {
-                string serviceLogFolder = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                    "GVFS",
-                    GVFSServiceProcess.TestServiceName,
-                    "Logs");
-
-                Console.WriteLine("GVFS.Service logs at '{0}' attached below.\n\n", serviceLogFolder);
-                foreach (string filename in TestResultsHelper.GetAllFilesInDirectory(serviceLogFolder))
-                {
-                    TestResultsHelper.OutputFileContents(filename);
-                }
-
-                GVFSServiceProcess.UninstallService();
-            }
-
-            PrintTestCaseStats.PrintRunTimeStats();
+            
+            Environment.ExitCode = runner.RunTests();
 
             if (Debugger.IsAttached)
             {

@@ -400,7 +400,7 @@ namespace GVFS.FunctionalTests.Tests
         {
             args = args + " --verbose";
 
-            string fastfetch = GVFSTestConfig.TestGVFSOnPath ? "fastfetch.exe" : Path.Combine(TestContext.CurrentContext.TestDirectory, "fastfetch.exe");
+            string fastfetch = Path.Combine(TestContext.CurrentContext.TestDirectory, "fastfetch.exe");
             if (!File.Exists(fastfetch))
             {
                 fastfetch = "fastfetch.exe";

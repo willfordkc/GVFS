@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\packages\NUnit.3.10.0-dev-05190\build\NUnit.props" Condition="Exists('..\..\..\packages\NUnit.3.10.0-dev-05190\build\NUnit.props')" />
+  <Import Project="..\..\..\packages\NUnit.3.10.1\build\NUnit.props" Condition="Exists('..\..\..\packages\NUnit.3.10.1\build\NUnit.props')" />
   <Import Project="$(SolutionDir)\GVFS\GVFS.Build\GVFS.props" />
   <PropertyGroup>
     <ProjectGuid>{0F0A008E-AB12-40EC-A671-37A541B08C7F}</ProjectGuid>
@@ -65,16 +65,16 @@
     <Reference Include="Microsoft.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Microsoft.Data.Sqlite.Core.2.0.0\lib\netstandard2.0\Microsoft.Data.Sqlite.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nunit.framework, Version=3.10.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\NUnit.3.10.0-dev-05190\lib\net45\nunit.framework.dll</HintPath>
+    <Reference Include="nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\NUnit.3.10.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="nunitlite, Version=3.10.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\NUnitLite.3.10.0-dev-05190\lib\net45\nunitlite.dll</HintPath>
+    <Reference Include="nunitlite, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\NUnitLite.3.10.1\lib\net45\nunitlite.dll</HintPath>
     </Reference>
     <Reference Include="SQLitePCLRaw.batteries_green, Version=1.0.0.0, Culture=neutral, PublicKeyToken=a84b7dcfb1391f7f, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\SQLitePCLRaw.bundle_green.1.1.7\lib\net45\SQLitePCLRaw.batteries_green.dll</HintPath>
@@ -114,6 +114,7 @@
     <Compile Include="Tests\EnlistmentPerFixture\DehydrateTests.cs" />
     <Compile Include="Tests\EnlistmentPerFixture\DiagnoseTests.cs" />
     <Compile Include="Tests\EnlistmentPerFixture\GitCorruptObjectTests.cs" />
+    <Compile Include="Tests\EnlistmentPerFixture\JunctionAndSubstTests.cs" />
     <Compile Include="Tests\EnlistmentPerFixture\PrefetchVerbWithoutSharedCacheTests.cs" />
     <Compile Include="Tests\EnlistmentPerFixture\ServiceTests.cs" />
     <Compile Include="Tests\GitCommands\AddStageTests.cs" />
@@ -145,7 +146,7 @@
     <Compile Include="Tests\EnlistmentPerTestCase\CaseOnlyFolderRenameTests.cs" />
     <Compile Include="Tests\EnlistmentPerFixture\MoveRenameFileTests.cs" />
     <Compile Include="Tests\EnlistmentPerFixture\MoveRenameFileTests_2.cs" />
-    <Compile Include="Tests\EnlistmentPerTestCase\PersistedSparseExcludeTests.cs" />
+    <Compile Include="Tests\EnlistmentPerTestCase\PersistedModifiedPathsTests.cs" />
     <Compile Include="Tests\EnlistmentPerTestCase\PersistedWorkingDirectoryTests.cs" />
     <Compile Include="Tests\EnlistmentPerFixture\MoveRenameFolderTests.cs" />
     <Compile Include="Tests\EnlistmentPerTestCase\TestsWithEnlistmentPerTestCase.cs" />
@@ -165,6 +166,7 @@
     <Compile Include="FileSystemRunners\PowerShellRunner.cs" />
     <Compile Include="FileSystemRunners\CmdRunner.cs" />
     <Compile Include="FileSystemRunners\FileSystemRunner.cs" />
+    <Compile Include="Tests\TestsSetup.cs" />
     <Compile Include="Tools\GitHelpers.cs" />
     <Compile Include="Tools\GitProcess.cs" />
     <Compile Include="Tools\GVFSFunctionalTestEnlistment.cs" />
@@ -173,6 +175,7 @@
     <Compile Include="Tools\NativeMethods.cs" />
     <Compile Include="Tools\ProcessHelper.cs" />
     <Compile Include="Tools\ProcessResult.cs" />
+    <Compile Include="Tools\RegistryHelper.cs" />
     <Compile Include="Tools\TestConstants.cs" />
     <Compile Include="Tools\GVFSProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -252,7 +255,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets'))" />
     <Error Condition="!Exists('..\..\..\packages\StyleCop.Error.MSBuild.1.0.0\build\StyleCop.Error.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\StyleCop.Error.MSBuild.1.0.0\build\StyleCop.Error.MSBuild.Targets'))" />
-    <Error Condition="!Exists('..\..\..\packages\NUnit.3.10.0-dev-05190\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\NUnit.3.10.0-dev-05190\build\NUnit.props'))" />
+    <Error Condition="!Exists('..\..\..\packages\NUnit.3.10.1\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\NUnit.3.10.1\build\NUnit.props'))" />
     <Error Condition="!Exists('..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.linux.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.linux.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.linux.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.linux.targets'))" />
     <Error Condition="!Exists('..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.osx.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.osx.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.osx.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.osx.targets'))" />
     <Error Condition="!Exists('..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.v110_xp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.v110_xp.targets'))" />
@@ -260,13 +263,19 @@
   <Import Project="..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets')" />
   <Import Project="..\..\..\packages\StyleCop.Error.MSBuild.1.0.0\build\StyleCop.Error.MSBuild.Targets" Condition="Exists('..\..\..\packages\StyleCop.Error.MSBuild.1.0.0\build\StyleCop.Error.MSBuild.Targets')" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(BuildOutputDir)\GVFS\bin\$(Platform)\$(Configuration)\* $(TargetDir)
-xcopy /Y $(BuildOutputDir)\GVFS\bin\$(Platform)\$(Configuration)\$(Platform)\* $(TargetDir)
-xcopy /Y $(BuildOutputDir)\GVFS.Service\bin\$(Platform)\$(Configuration)\* $(TargetDir)
-xcopy /Y $(BuildOutputDir)\GVFS.Mount\bin\$(Platform)\$(Configuration)\* $(TargetDir)
-xcopy /Y $(BuildOutputDir)\FastFetch\bin\$(Platform)\$(Configuration)\* $(TargetDir)
-xcopy /Y $(BuildOutputDir)\GVFS.NativeTests\bin\$(Platform)\$(Configuration)\* $(TargetDir)
-xcopy /Y $(BuildOutputDir)\GVFS.Hooks\bin\$(Platform)\$(Configuration)\* $(TargetDir)</PostBuildEvent>
+    <PostBuildEvent>
+      xcopy /Y $(BuildOutputDir)\GVFS\bin\$(Platform)\$(Configuration)\* $(TargetDir)
+      xcopy /Y $(BuildOutputDir)\GVFS\bin\$(Platform)\$(Configuration)\$(Platform)\* $(TargetDir)
+      xcopy /Y $(BuildOutputDir)\GVFS.Service\bin\$(Platform)\$(Configuration)\* $(TargetDir)
+      xcopy /Y $(BuildOutputDir)\GVFS.Mount\bin\$(Platform)\$(Configuration)\* $(TargetDir)
+      xcopy /Y $(BuildOutputDir)\FastFetch\bin\$(Platform)\$(Configuration)\* $(TargetDir)
+      xcopy /Y $(BuildOutputDir)\GVFS.NativeTests\bin\$(Platform)\$(Configuration)\* $(TargetDir)
+      xcopy /Y $(BuildOutputDir)\GVFS.Hooks\bin\$(Platform)\$(Configuration)\* $(TargetDir)
+
+      REM If there is an inbox version of the ProjFS dll, we must use that one to guarantee compat with the sys, so delete whatever is in our TargetDir
+      if exist c:\Windows\System32\ProjectedFSLib.dll del $(TargetDir)\ProjectedFSLib.dll
+
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>

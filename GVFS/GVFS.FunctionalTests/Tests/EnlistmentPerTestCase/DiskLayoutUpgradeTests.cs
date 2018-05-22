@@ -14,7 +14,7 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
     [Category(Categories.FullSuiteOnly)]
     public class DiskLayoutUpgradeTests : TestsWithEnlistmentPerTestCase
     {
-        public const int CurrentDiskLayoutMajorVersion = 14;
+        public const int CurrentDiskLayoutMajorVersion = 15;
         public const int CurrentDiskLayoutMinorVersion = 0;
 
         public const string BlobSizesCacheName = "blobSizes";
@@ -172,6 +172,13 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
             ProcessHelper.Run("CMD.exe", "/C mklink /J " + junctionLink + " " + junctionTarget);
             ProcessHelper.Run("CMD.exe", "/C mklink /D " + symlink + " " + symlinkTarget);
 
+            string target = Path.Combine(this.Enlistment.EnlistmentRoot, "GVFS", "GVFS", "GVFS.UnitTests");
+            string link = Path.Combine(this.Enlistment.RepoRoot, "UnitTests");
+            ProcessHelper.Run("CMD.exe", "/C mklink /J " + link + " " + target);
+            target = Path.Combine(this.Enlistment.EnlistmentRoot, "GVFS", "GVFS", "GVFS.Installer");
+            link = Path.Combine(this.Enlistment.RepoRoot, "Installer");
+            ProcessHelper.Run("CMD.exe", "/C mklink /D " + link + " " + target);
+
             this.Enlistment.UnmountGVFS();
 
             // Delete the existing folder placeholder data
@@ -252,6 +259,78 @@ namespace GVFS.FunctionalTests.Tests.EnlistmentPerTestCase
             {
                 GVFSHelpers.SQLiteBlobSizesDatabaseHasEntry(blobSizesDbPath, entry.Key, entry.Value);
             }
+        }
+
+        public void MountCreatesModifiedPathsDatabase()
+        {
+            this.Enlistment.UnmountGVFS();
+            GVFSHelpers.SaveDiskLayoutVersion(this.Enlistment.DotGVFSRoot, "14", "0");
+
+            // Delete the existing modified paths database to make sure mount creates it.
+            string modifiedPathsDatabasePath = Path.Combine(this.Enlistment.DotGVFSRoot, TestConstants.Databases.ModifiedPaths);
+            this.fileSystem.DeleteFile(modifiedPathsDatabasePath);
+
+            // Overwrite the sparse-checkout with entries to test
+            string sparseCheckoutPath = Path.Combine(this.Enlistment.RepoRoot, TestConstants.DotGit.Info.SparseCheckoutPath);
+            string sparseCheckoutContent = @"/.gitattributes
+/developer/me/
+/developer/me/JLANGE9._prerazzle
+/developer/me/StateSwitch.Save
+/tools/x86/remote.exe
+/tools/x86/runelevated.exe
+/tools/amd64/remote.exe
+/tools/amd64/runelevated.exe
+/tools/perllib/MS/TraceLogging.dll
+/tools/managed/v2.0/midldd.CheckedInExe
+/tools/managed/v4.0/sdapi.dll
+/tools/managed/v2.0/midlpars.dll
+/tools/managed/v2.0/RPCDataSupport.dll
+";
+            this.fileSystem.WriteAllText(sparseCheckoutPath, sparseCheckoutContent);
+
+            // Overwrite the always_exclude file with entries to test
+            string alwaysExcludePath = Path.Combine(this.Enlistment.RepoRoot, TestConstants.DotGit.Info.AlwaysExcludePath);
+            string alwaysExcludeContent = @"*
+!/developer
+!/developer/*
+!/developer/me
+!/developer/me/*
+!/tools
+!/tools/x86
+!/tools/x86/*
+!/tools/amd64
+!/tools/amd64/*
+!/tools/perllib/
+!/tools/perllib/MS/
+!/tools/perllib/MS/Somefile.txt
+!/tools/managed/
+!/tools/managed/v2.0/
+!/tools/managed/v2.0/MidlStaticAnalysis.dll
+!/tools/managed/v2.0/RPCDataSupport.dll
+";
+            this.fileSystem.WriteAllText(alwaysExcludePath, alwaysExcludeContent);
+
+            this.Enlistment.MountGVFS();
+            this.Enlistment.UnmountGVFS();
+
+            string expectedModifiedPaths = @"A .gitattributes
+A developer/me/
+A developer/me/JLANGE9._prerazzle
+A developer/me/StateSwitch.Save
+A tools/x86/remote.exe
+A tools/x86/runelevated.exe
+A tools/amd64/remote.exe
+A tools/amd64/runelevated.exe
+A tools/perllib/MS/TraceLogging.dll
+A tools/managed/v2.0/midldd.CheckedInExe
+A tools/managed/v4.0/sdapi.dll
+A tools/managed/v2.0/midlpars.dll
+A tools/managed/v2.0/RPCDataSupport.dll
+A tools/managed/v2.0/MidlStaticAnalysis.dll
+A tools/perllib/MS/Somefile.txt
+";
+
+            modifiedPathsDatabasePath.ShouldBeAFile(this.fileSystem).WithContents(expectedModifiedPaths);
         }
 
         private string[] GetPlaceholderDatabaseLinesBeforeUpgrade(string placeholderDatabasePath)

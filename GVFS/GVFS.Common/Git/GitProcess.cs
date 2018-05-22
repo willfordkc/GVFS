@@ -1,6 +1,5 @@
 using GVFS.Common.FileSystem;
 using GVFS.Common.Tracing;
-using Microsoft.Diagnostics.Tracing;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -50,31 +49,6 @@ namespace GVFS.Common.Git
 
             this.enlistment = enlistment;
             this.fileSystem = filesystem ?? new PhysicalFileSystem();
-        }
-
-        public static bool GitExists(string gitBinPath)
-        {
-            if (!string.IsNullOrWhiteSpace(gitBinPath))
-            {
-                return File.Exists(gitBinPath);
-            }
-
-            return ProcessHelper.WhereDirectory(GitProcessName) != null;
-        }
-
-        public static string GetInstalledGitBinPath()
-        {
-            string gitBinPath = ProcessHelper.GetStringFromRegistry(RegistryHive.LocalMachine, GitInstallationRegistryKey, GitInstallationRegistryInstallPathValue);
-            if (!string.IsNullOrWhiteSpace(gitBinPath))
-            {
-                gitBinPath = Path.Combine(gitBinPath, GitBinRelativePath);
-                if (File.Exists(gitBinPath))
-                {
-                    return gitBinPath;
-                }
-            }
-
-            return null;
         }
 
         public static Result Init(Enlistment enlistment)
@@ -269,11 +243,6 @@ namespace GVFS.Common.Git
             return this.InvokeGitInWorkingDirectoryRoot("status", useReadObjectHook: allowObjectDownloads);
         }
 
-        public Result UpdateIndexVersion4()
-        {
-            return this.InvokeGitAgainstDotGitFolder("update-index --index-version 4");
-        }
-
         public Result UnpackObjects(Stream packFileStream)
         {
             return this.InvokeGitAgainstDotGitFolder(
@@ -409,7 +378,7 @@ namespace GVFS.Common.Git
 
             if (!useReadObjectHook)
             {
-                command = "-c " + GitConfigSetting.VirtualizeObjectsGitConfigName + "=false " + command;
+                command = "-c " + GitConfigSetting.CoreVirtualizeObjectsName + "=false " + command;
             }
 
             if (!string.IsNullOrEmpty(dotGitDirectory))

@@ -161,7 +161,7 @@ namespace GVFS.Common.Git
                             long originalSize = Native.Blob.GetRawSize(objHandle);
                             
                             // TODO 938696: UnmanagedMemoryStream marshals content even for CopyTo
-                            // If GetRawContent changed to return IntPtr and GvFlt changed WriteBuffer to expose an IntPtr,
+                            // If GetRawContent changed to return IntPtr and ProjFS changed WriteBuffer to expose an IntPtr,
                             // We could probably pinvoke memcpy and avoid marshalling.
                             using (Stream mem = new UnmanagedMemoryStream(originalData, originalSize))
                             { 

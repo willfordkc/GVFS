@@ -1,12 +1,13 @@
 ﻿using GVFS.Common;
 using GVFS.Common.Git;
 using GVFS.Common.NamedPipes;
+using GVFS.Windows;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
+using System.Security.Principal;
 
 namespace GVFS.Hooks
 {
@@ -37,8 +38,14 @@ namespace GVFS.Hooks
 
                 bool unattended = GVFSEnlistment.IsUnattended(tracer: null);
 
-                enlistmentRoot = Paths.GetGVFSEnlistmentRoot(Environment.CurrentDirectory);
-                if (string.IsNullOrEmpty(enlistmentRoot))
+                string errorMessage;
+                string normalizedCurrentDirectory;
+                if (!Paths.TryGetNormalizedPath(Environment.CurrentDirectory, out normalizedCurrentDirectory, out errorMessage))
+                {
+                    ExitWithError($"Failed to determine final path for current directory {Environment.CurrentDirectory}. Error: {errorMessage}");
+                }
+
+                if (!Paths.TryGetGVFSEnlistmentRoot(Environment.CurrentDirectory, out enlistmentRoot, out errorMessage))
                 {
                     // Nothing to hook when being run outside of a GVFS repo.
                     // This is also the path when run with --git-dir outside of a GVFS directory, see Story #949665
@@ -254,7 +261,7 @@ namespace GVFS.Hooks
                     pipeClient,
                     fullCommand,
                     pid,
-                    ProcessHelper.IsAdminElevated(),
+                    WindowsPlatform.IsElevatedImplementation(),
                     checkGvfsLockAvailabilitOnly,
                     parentProcess,
                     null, // gvfsEnlistmentRoot
@@ -273,7 +280,7 @@ namespace GVFS.Hooks
                 pipeClient,
                 fullCommand,
                 pid,
-                ProcessHelper.IsAdminElevated(),
+                WindowsPlatform.IsElevatedImplementation(),
                 parentProcess,
                 response =>
                 {
@@ -393,6 +400,7 @@ namespace GVFS.Hooks
                 case "branch":
                 case "cat-file":
                 case "check-attr":
+                case "commit-graph":
                 case "config":
                 case "credential":
                 case "diff":
@@ -408,6 +416,7 @@ namespace GVFS.Hooks
                 case "ls-files":
                 case "ls-tree":
                 case "merge-base":
+                case "midx":
                 case "name-rev":
                 case "push":
                 case "remote":

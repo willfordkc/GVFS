@@ -1,5 +1,6 @@
 ﻿using GVFS.Common;
 using GVFS.Common.Tracing;
+using GVFS.Windows;
 using System;
 using System.Diagnostics;
 using System.ServiceProcess;
@@ -10,9 +11,11 @@ namespace GVFS.Service
     {
         public static void Main(string[] args)
         {
+            GVFSPlatform.Register(new WindowsPlatform());
+
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
-            using (JsonEtwTracer tracer = new JsonEtwTracer(GVFSConstants.Service.ServiceName, GVFSConstants.Service.ServiceName))
+            using (JsonTracer tracer = new JsonTracer(GVFSConstants.Service.ServiceName, GVFSConstants.Service.ServiceName))
             {
                 using (GVFSService service = new GVFSService(tracer))
                 {

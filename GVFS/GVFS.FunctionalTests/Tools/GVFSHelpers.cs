@@ -1,4 +1,6 @@
-﻿using GVFS.Tests.Should;
+﻿using GVFS.FunctionalTests.FileSystemRunners;
+using GVFS.FunctionalTests.Should;
+using GVFS.Tests.Should;
 using Microsoft.Data.Sqlite;
 using Microsoft.Isam.Esent.Collections.Generic;
 using Newtonsoft.Json;
@@ -132,6 +134,37 @@ namespace GVFS.FunctionalTests.Tools
                     }
                 }
             }
+        }
+
+        public static string ReadAllTextFromWriteLockedFile(string filename)
+        {
+            // File.ReadAllText and others attempt to open for read and FileShare.None, which always fail on 
+            // the placeholder db and other files that open for write and only share read access
+            using (StreamReader reader = new StreamReader(File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
+        public static void ModifiedPathsContentsShouldEqual(FileSystemRunner fileSystem, string dotGVFSRoot, string contents)
+        {
+            string modifiedPathsDatabase = Path.Combine(dotGVFSRoot, TestConstants.Databases.ModifiedPaths);
+            modifiedPathsDatabase.ShouldBeAFile(fileSystem);
+            GVFSHelpers.ReadAllTextFromWriteLockedFile(modifiedPathsDatabase).ShouldEqual(contents);
+        }
+
+        public static void ModifiedPathsShouldContain(FileSystemRunner fileSystem, string dotGVFSRoot, params string[] gitPaths)
+        {
+            string modifiedPathsDatabase = Path.Combine(dotGVFSRoot, TestConstants.Databases.ModifiedPaths);
+            modifiedPathsDatabase.ShouldBeAFile(fileSystem);
+            GVFSHelpers.ReadAllTextFromWriteLockedFile(modifiedPathsDatabase).ShouldContain(gitPaths);
+        }
+
+        public static void ModifiedPathsShouldNotContain(FileSystemRunner fileSystem, string dotGVFSRoot, params string[] gitPaths)
+        {
+            string modifiedPathsDatabase = Path.Combine(dotGVFSRoot, TestConstants.Databases.ModifiedPaths);
+            modifiedPathsDatabase.ShouldBeAFile(fileSystem);
+            GVFSHelpers.ReadAllTextFromWriteLockedFile(modifiedPathsDatabase).ShouldNotContain(ignoreCase: true, unexpectedSubstrings: gitPaths);
         }
 
         private static byte[] StringToShaBytes(string sha)

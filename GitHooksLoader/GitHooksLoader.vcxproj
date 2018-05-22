@@ -65,7 +65,7 @@
       <AdditionalLibraryDirectories>C:\Program Files (x86)\Windows Kits\10\Lib\10.0.10240.0\ucrt\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <BuildLog>
-      <Path>$(BuildOuputDir)\$(ProjectName)\intermediate\$(Platform)\$(Configuration)\$(MSBuildProjectName).log</Path>
+      <Path>$(BuildOutputDir)\$(ProjectName)\intermediate\$(Platform)\$(Configuration)\$(MSBuildProjectName).log</Path>
     </BuildLog>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(BuildOutputDir)</AdditionalIncludeDirectories>

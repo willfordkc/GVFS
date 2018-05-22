@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\GVFS.Build\GVFS.props" />
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Version>$(GVFSVersion)</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Mac\PrjFSLib.Managed\PrjFSLib.Managed.csproj" />
+    <ProjectReference Include="..\GVFS.Virtualization\GVFS.Virtualization.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,6 +1,5 @@
 using GVFS.Common.NamedPipes;
 using GVFS.Common.Tracing;
-using Microsoft.Diagnostics.Tracing;
 using System.Diagnostics;
 using System.Threading;
 
